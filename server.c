@@ -1,8 +1,7 @@
 /*
  * server.c
  *
- *  Created on: Nov 11, 2020
- *      Author: sarwars1
+
  */
 #include <stdio.h>
 #include <netdb.h>
