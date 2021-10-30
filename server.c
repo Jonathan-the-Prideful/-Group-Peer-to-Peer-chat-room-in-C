@@ -13,6 +13,7 @@
 #define MAX 80
 #define PORT 8080
 #define SA struct sockaddr
+#include <time.h>
 
 void recieve(int sockid, int sockid2){
 	char buff[MAX];
@@ -61,6 +62,18 @@ void chatRoom(int sockfd, int sockfd2)
 			break;
 		}
 	}
+}
+//Timer
+void actionTimer(){
+	int msec = 0,trigger =10; //10ms wait time.
+	clock_t before = clock();
+	
+	do{
+		//something
+		clock_t difference =clock() - before;
+		msec = difference * 1000 /CLOCKS_PER_SC;
+		iterations++;
+	}while( msec < trigger );	
 }
 
 // Driver function
@@ -124,6 +137,7 @@ int main()
 
 	// After chatting close the socket
 	close(sockfd);
+	
 }
 
 
