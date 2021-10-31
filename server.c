@@ -1,7 +1,8 @@
 /*
  * server.c
  *
-
+ *  Created on: Nov 11, 2020
+ *      Author: sarwars1
  */
 #include <stdio.h>
 #include <netdb.h>
@@ -10,20 +11,38 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <time.h>
 #define MAX 80
 #define PORT 8080
 #define SA struct sockaddr
-#include <time.h>
-
-void recieve(int sockid, int sockid2){
+#define CLOCKS_PER_SC 100000
+/*void recieve(int sockid, int sockid2){
 	char buff[MAX];
 	bzero(buff, MAX);
 	read(sockid, buff, sizeof(buff));
 	write(sockfd2, buff, MAX);
 }
 // Function designed for chat between client and server.*/
+int actionTimerCounter = 0;
+
+int actionTimer(){
+	
+	int msec = 0,trigger =10; //10ms wait time.
+	
+	clock_t before = clock();
+	
+	do{
+		//something
+		clock_t difference =clock() - before;
+		msec = difference * 1000 /CLOCKS_PER_SC;
+		//iterations++;
+	}while( msec < trigger );
+	actionTimerCounter ++;
+	return 0;	
+}
 void chatRoom(int sockfd, int sockfd2)
 {
+	
 	char buff[MAX];
 	int n;
 	// infinite loop for chat
@@ -31,29 +50,17 @@ void chatRoom(int sockfd, int sockfd2)
 		bzero(buff, MAX);
 
 		// read the message from client and copy it in buffer
-		read(sockfd, buff, sizeof(buff));//recieve
+		//read
+		read(sockfd, buff, sizeof(buff));//first user
 		// print buffer which contains the client contents
-		printf("From client: %s\t To client : ", buff);
-		//bzero(buff, MAX);
-		n = 0;
-		// copy server message in the buffer
-		/*while ((buff[n++] = getchar()) != '\n')
-			;
-
-		// and send that buffer to client*/
+		actionTimer();
+		//write
 		write(sockfd2, buff, sizeof(buff));//send
 		
 		bzero(buff, MAX);
-		read(sockfd2, buff, sizeof(buff));
-		/*// print buffer which contains the client contents
-		printf("From client: %s\t To client : ", buff);
-		bzero(buff, MAX);
-		n = 0;
-		// copy server message in the buffer
-		while ((buff[n++] = getchar()) != '\n')
-			;
-
-		// and send that buffer to client*/
+		
+		read(sockfd2, buff, sizeof(buff)); //second user
+		actionTimer();
 		write(sockfd, buff, sizeof(buff));
 
 		// if msg contains "Exit" then server exit and chat ended.
@@ -63,22 +70,11 @@ void chatRoom(int sockfd, int sockfd2)
 		}
 	}
 }
-//Timer
-void actionTimer(){
-	int msec = 0,trigger =10; //10ms wait time.
-	clock_t before = clock();
-	
-	do{
-		//something
-		clock_t difference =clock() - before;
-		msec = difference * 1000 /CLOCKS_PER_SC;
-		iterations++;
-	}while( msec < trigger );	
-}
 
 // Driver function
 int main()
 {
+	
 	int sockfd, sockfd2, connfd, len;
 	int userCount = 0;
 	int userArray[2];
@@ -137,7 +133,8 @@ int main()
 
 	// After chatting close the socket
 	close(sockfd);
+	printf("\n*** Number of times action timer ran: %d***", actionTimerCounter);
+	
 	
 }
-
 
