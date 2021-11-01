@@ -12,10 +12,12 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <time.h>
+#include <pthread.h>
 #define MAX 80
 #define PORT 8080
 #define SA struct sockaddr
 #define CLOCKS_PER_SC 100000
+
 /*void recieve(int sockid, int sockid2){
 	char buff[MAX];
 	bzero(buff, MAX);
@@ -24,7 +26,14 @@
 }
 // Function designed for chat between client and server.*/
 int actionTimerCounter = 0;
-
+int sockfd1F;
+int sockfd2F;
+struct thread_args {
+	int sockfd;
+	int sockfd2;
+	int is_alive;
+	};
+	
 int actionTimer(){
 	
 	int msec = 0,trigger =10; //10ms wait time.
@@ -40,10 +49,51 @@ int actionTimer(){
 	actionTimerCounter ++;
 	return 0;	
 }
+
+void *send_recieve1 (void *_args){
+	char buff[MAX];
+	struct thread_args *args = (struct thread_args *) _args;
+	int sockfd = args -> sockfd;
+	int sockfd2 = args -> sockfd2;
+	for(;;){
+		bzero(buff, MAX);
+		read(sockfd1F, buff, sizeof(buff));
+		printf("message recieved");
+		write(sockfd2F, buff, sizeof(buff));
+		// if msg contains "Exit" then server exit and chat ended.
+		if (strncmp("exit", buff, 4) == 0) {
+			printf("Server Exit...\n");
+			args-> is_alive = args->is_alive - 1;
+			break;
+		}
+	}
+	
+	pthread_exit(NULL);
+}
+
+void *send_recieve2 (void *_args){
+	char buff[MAX];
+	struct thread_args *args = (struct thread_args *) _args;
+	for(;;){
+		bzero(buff, MAX);
+		read(sockfd2F, buff, sizeof(buff));
+		printf("message recieved");
+		sleep(2);
+		write(sockfd1F, buff, sizeof(buff));
+		// if msg contains "Exit" then server exit and chat ended.
+		if (strncmp("exit", buff, 4) == 0) {
+			printf("Server Exit...\n");
+			args-> is_alive = args-> is_alive - 1;
+			break;
+		}
+	}
+	
+	pthread_exit (NULL);
+}	
 void chatRoom(int sockfd, int sockfd2)
 {
 	
-	char buff[MAX];
+	/*char buff[MAX];
 	int n;
 	// infinite loop for chat
 	for (;;) {
@@ -66,6 +116,22 @@ void chatRoom(int sockfd, int sockfd2)
 		// if msg contains "Exit" then server exit and chat ended.
 		if (strncmp("exit", buff, 4) == 0) {
 			printf("Server Exit...\n");
+			break;
+		}
+	}*/
+
+	pthread_t thread_id1;
+	pthread_t thread_id2;
+	struct thread_args trash;
+	struct thread_args *args = malloc (sizeof (trash));
+	sockfd1F = sockfd;
+	sockfd2F = sockfd2;
+	args-> is_alive = 2;
+	pthread_create(&thread_id1, NULL, send_recieve1, args);
+	pthread_create(&thread_id2, NULL, send_recieve2, args);
+	while(args -> is_alive != -1){
+		if(args-> is_alive == 0){
+			free(args);
 			break;
 		}
 	}
@@ -137,4 +203,5 @@ int main()
 	
 	
 }
+
 
