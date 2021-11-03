@@ -16,50 +16,59 @@
 #define PORT 8080
 #define SA struct sockaddr
 int sockfdGlobe;
-
-struct thread_args {
-	int sockfd;
-	int is_Alive;
-	};
+char buffRead[MAX];
+int is_Alive = 1;
+pthread_mutex_t stdout_lock;
+int readCheck = 0;
 void *read2(void *_args){
 	char buff[MAX];
-	struct thread_args *args = (struct thread_args *) _args;
-	int *sockfd = args->sockfd;
 	for(;;){
+		readCheck = 0;
 		bzero(buff, MAX);
 		read(sockfdGlobe, buff, sizeof(buff));
-		//if(strncmp(buff, "", 0) != 0){
-			fprintf(stdout, "\nFrom other user: %s", buff);
+		readCheck = 1;
+		fprintf(stdout, "\nFrom other user: %s", buff);
 			// if msg contains "Exit" then server exit and chat ended.	
-		//}
-		if (args->is_Alive == 0) {
+		//pthread_mutex_unlock(&stdout_lock);
+		readCheck = 1;
+		if (is_Alive == 0) {
 			printf("Read thread exit\n");
 			break;
 		}
 	}
 	pthread_exit(NULL);
 }
-/*void *write(void *_args){
+void *write2(void *_args){
 	
-	char buff[MAX];
-	struct thread_args *args = (struct thread_args *) _args;
+	int n;
+	is_Alive = 1;
 	for(;;){
-		bzero(buff, MAX);
-		while ((buff[n++] = getchar()) != '\n');
-		write(sockfd, buff, sizeof(buff));
-		if ((strncmp(buff, "exit", 4)) == 0) {
+		bzero(buffRead, sizeof(buffRead)); 
+		fprintf(stdout, "Enter a string: ");
+		n = 0;
+		bzero(buffRead, MAX);
+		//pthread_mutex_lock(&stdout_lock);
+		while ((buffRead[n++] = getchar()) != '\n'){
+			if(readCheck == 1){
+				fprintf(stdout, "Enter a string: %s", buffRead);
+			}
+		};
+		//sleep(2);
+		//pthread_mutex_unlock(&stdout_lock);
+		write(sockfdGlobe, buffRead, sizeof(buffRead));
+		if ((strncmp(buffRead, "exit", 4)) == 0) {
 			printf("Client Exit...\n");
-			args->is_Alive = 0;
+			is_Alive = 0;
 		}
 		// if msg contains "Exit" then server exit and chat ended.
-		if (args->is_Alive == 0) {
-			printf("Read thread exit\n");
+		if (is_Alive == 0) {
+			printf("client exit \n");
 			break;
 		}
 	}
 	
 	pthread_exit(NULL);
-}*/
+}
 void func(int sockfd)
 {
 	/*char buff[MAX];
@@ -78,18 +87,19 @@ void func(int sockfd)
 			break;
 		}
 	}*/
+	if (pthread_mutex_init(&stdout_lock, NULL) != 0) {
+		printf("\n mutex init has failed\n");
+	}
 	pthread_t thread_id1;
-	struct thread_args trash;
-	struct thread_args *args = malloc (sizeof(trash));
-	args -> sockfd = sockfd;
-	args -> is_Alive = 1;
+	pthread_t thread_id2;
 	sockfdGlobe = sockfd;
-	pthread_create(&thread_id1, NULL, read2, &args);
-	char buff[MAX];
+	pthread_create(&thread_id1, NULL, read2, NULL);
+	pthread_create(&thread_id2, NULL, write2, NULL);
+	/*char buff[MAX];
 	int n;
 	for(;;){
-		bzero(buff, sizeof(buff));
-		printf("Enter the string : ");
+		bzero(buff, sizeof(buff)); 
+		printf("Enter a string: ");
 		n = 0;
 		bzero(buff, MAX);
 		while ((buff[n++] = getchar()) != '\n');
@@ -104,7 +114,9 @@ void func(int sockfd)
 			printf("client exit exit\n");
 			break;
 		}
-	}
+	}*/
+	pthread_join(thread_id1, NULL);
+	pthread_join(thread_id2, NULL);
 }
 
 int main()
