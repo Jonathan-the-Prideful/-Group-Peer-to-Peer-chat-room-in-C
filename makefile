@@ -1,16 +1,10 @@
 all:server client
 
-server: server.o
-		gcc server.o -o server
+server: server.c
+		gcc -c server.c -o Server
 
-server.o: server.c
-		gcc -c server.c -o server.o
-
-client: client.o
-		gcc client.o -o client
-
-client.o: client.c
-		gcc -c client.c -o client.o
+client: client.c
+		gcc -c client.c -o Client
 
 clean:
-	rm -f server.o client.o
+	rm -f Server Client
