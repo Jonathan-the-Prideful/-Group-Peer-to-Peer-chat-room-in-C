@@ -2,19 +2,23 @@
 #define WINDOW_WIDTH 700
 #define WINDOW_HEIGHT 500
 
+static void button_clicked(GtkWidget *widget, gpointer data){
+    g_print("The button was pressed \n");
+}
+
 void inizilize (GtkWidget *window){
     GtkWidget *buttonServer;
     GtkWidget *buttonClient;
     GtkWidget *box;
     GtkWidget *instructions;
 
-    instructions = gtk_label_new("What would you like to do?");
+    instructions = gtk_label_new("What would you like to do?");//setting the label
 
     //setup box to contain items
     box = gtk_fixed_new();
     gtk_container_add(GTK_CONTAINER(window), box);//add box to window
 
-    //Add buttons
+    //Add buttons and label to screen
     buttonServer = gtk_button_new_with_label("Host Chat");
     gtk_widget_set_size_request(GTK_WIDGET(buttonServer), 200, 100);
     buttonClient = gtk_button_new_with_label("Join Chat");
@@ -22,6 +26,9 @@ void inizilize (GtkWidget *window){
     gtk_fixed_put(GTK_FIXED(box), buttonServer, 100, 250);
     gtk_fixed_put(GTK_FIXED(box), buttonClient, 400, 250);
     gtk_fixed_put(GTK_FIXED(box), instructions, (WINDOW_WIDTH / 2) - 80, 50);
+
+    g_signal_connect(buttonServer, "clicked", G_CALLBACK(button_clicked), NULL);
+    g_signal_connect(buttonClient, "clicked", G_CALLBACK(button_clicked), NULL);
 
 }
 
