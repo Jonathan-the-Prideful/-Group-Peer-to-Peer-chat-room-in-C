@@ -2,15 +2,27 @@
 #define WINDOW_WIDTH 700
 #define WINDOW_HEIGHT 500
 
-static void button_clicked(GtkWidget *widget, gpointer data){
-    g_print("The button was pressed \n");
+GtkWidget *buttonServer,*buttonClient; //buttons
+GtkWidget *box; //fields
+GtkWidget *instructions; //labels
+GtkWidget *window; //Application window
+
+
+
+static void button_clicked(GtkWidget *widget, char data[]){
+    g_print("The %s button was pressed \n", data);
+
+    // logic if server is clicked
+    if(data == "server"){
+        gtk_container_remove(GTK_CONTAINER(window), box);
+    }
+    // logic if client is clicked
+    if(data == "client"){
+        gtk_container_remove(GTK_CONTAINER(window), box);
+    }
 }
 
 void inizilize (GtkWidget *window){
-    GtkWidget *buttonServer;
-    GtkWidget *buttonClient;
-    GtkWidget *box;
-    GtkWidget *instructions;
 
     instructions = gtk_label_new("What would you like to do?");//setting the label
 
@@ -27,18 +39,15 @@ void inizilize (GtkWidget *window){
     gtk_fixed_put(GTK_FIXED(box), buttonClient, 400, 250);
     gtk_fixed_put(GTK_FIXED(box), instructions, (WINDOW_WIDTH / 2) - 80, 50);
 
-    g_signal_connect(buttonServer, "clicked", G_CALLBACK(button_clicked), NULL);
-    g_signal_connect(buttonClient, "clicked", G_CALLBACK(button_clicked), NULL);
-
+    g_signal_connect(buttonServer, "clicked", G_CALLBACK(button_clicked), "server");
+    g_signal_connect(buttonClient, "clicked", G_CALLBACK(button_clicked), "client");
+    
 }
 
 int main (int argc, char **argv){
 
     //So this is used to call visual and color maping and initalizes the gtx library.
     gtk_init (&argc, &argv);
-
-    //widget library extends to window
-    GtkWidget *window;
 
     //Displays the window
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);// Main window
