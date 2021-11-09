@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+#include <unistd.h>
 #define WINDOW_WIDTH 700
 #define WINDOW_HEIGHT 500
 
@@ -6,10 +7,33 @@ GtkWidget *buttonServer,*buttonClient; //buttons
 GtkWidget *box; //fields
 GtkWidget *instructions; //labels
 GtkWidget *window; //Application window
+GtkWidget *inputField; //input field for user
+
+void entered(GtkEntry *widget, gpointer data){
+    
+    g_print("you entered: %s\n", gtk_entry_get_text(GTK_ENTRY(data)));
+    gchar* IP  = gtk_entry_get_text(GTK_ENTRY(data));
+    g_print("IP = %s \n", IP);
+}
+
+void runClient(){
+    box = gtk_fixed_new();
+    gtk_container_add(GTK_CONTAINER(window), box);//add box to window
+
+    instructions = gtk_label_new("Please enter the IP of the chat room you wish to join then press ENTER.");//setting the label
+    gtk_fixed_put(GTK_FIXED(box), instructions, (WINDOW_WIDTH / 2) -  (72 * 3), 50);
+
+    inputField = gtk_entry_new();//Setup input field
+    gtk_entry_set_placeholder_text(GTK_ENTRY(inputField), "x.x.x.x");
+    gtk_fixed_put(GTK_FIXED(box), inputField, (WINDOW_WIDTH / 2) - 80, WINDOW_HEIGHT /2);
+
+    g_signal_connect(inputField, "activate", G_CALLBACK(entered), inputField);
 
 
+    gtk_widget_show_all(window);
+}
 
-static void button_clicked(GtkWidget *widget, char data[]){
+ static void button_clicked(GtkWidget *widget, char data[]){
     g_print("The %s button was pressed \n", data);
 
     // logic if server is clicked
@@ -19,6 +43,7 @@ static void button_clicked(GtkWidget *widget, char data[]){
     // logic if client is clicked
     if(data == "client"){
         gtk_container_remove(GTK_CONTAINER(window), box);
+        runClient();
     }
 }
 
