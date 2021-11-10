@@ -97,7 +97,7 @@ void func(int sockfd)
 	pthread_join(thread_id2, NULL);
 }
 
-int chatClient()
+int chatClient(char IP[])
 {
 	int sockfd, connfd;
 	struct sockaddr_in servaddr, cli;
@@ -114,7 +114,8 @@ int chatClient()
 
 	// assign IP, PORT
 	servaddr.sin_family = AF_INET;
-	servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	//servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	servaddr.sin_addr.s_addr = inet_addr(IP);
 	servaddr.sin_port = htons(PORT);
 
 	// connect the client socket to server socket
@@ -140,9 +141,12 @@ int chatClient()
 void entered(GtkEntry *widget, gpointer data){
     
     g_print("you entered: %s\n", gtk_entry_get_text(GTK_ENTRY(data)));
-    gchar* IP  = gtk_entry_get_text(GTK_ENTRY(data));
+	char* temp = gtk_entry_get_text(GTK_ENTRY(data));
+	char IP[20];
+	strcpy(IP, temp);
+    //gchar* IP  = gtk_entry_get_text(GTK_ENTRY(data));
     g_print("IP = %s \n", IP);
-    chatClient();
+    chatClient(IP);
 }
 
 void runClient(){
