@@ -1,5 +1,4 @@
 #include <gtk/gtk.h>
-#include <unistd.h>
 #define WINDOW_WIDTH 700
 #define WINDOW_HEIGHT 500
 
@@ -8,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <pthread.h>
@@ -172,6 +172,10 @@ void runClient(){
     // logic if server is clicked
     if(data == "server"){
         gtk_container_remove(GTK_CONTAINER(window), box);
+		pid_t pid =fork();
+		if (pid==0) {
+			execl("./", "./Server", NULL);
+		}
     }
     // logic if client is clicked
     if(data == "client"){
