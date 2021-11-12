@@ -1,4 +1,4 @@
-#include <gtk/gtk.h>
+include <gtk/gtk.h>
 #define WINDOW_WIDTH 700
 #define WINDOW_HEIGHT 500
 
@@ -138,6 +138,25 @@ int chatClient(char IP[])
 
 //gui interface code
 
+//Gui for chat perhaps this can be moved into the main client
+void chatInterface(){
+
+	gtk_container_remove(GTK_CONTAINER(window), box);//clear the page
+
+	box = gtk_fixed_new();
+	gtk_container_add(GTK_CONTAINER(window), box);//add box to window
+	inputField = gtk_entry_new();//Setup input field
+	gtk_entry_set_placeholder_text(GTK_ENTRY(inputField), "Type message here"); //input field text added
+	gtk_fixed_put(GTK_FIXED(box), inputField, (WINDOW_WIDTH / 2) - 80, WINDOW_HEIGHT / 2); //place the field
+
+	gtk_widget_show_all(window);// set all items to the stage.
+
+
+
+
+
+}
+
 void entered(GtkEntry *widget, gpointer data){
     
     g_print("you entered: %s\n", gtk_entry_get_text(GTK_ENTRY(data)));
@@ -146,7 +165,8 @@ void entered(GtkEntry *widget, gpointer data){
 	strcpy(IP, temp);
     //gchar* IP  = gtk_entry_get_text(GTK_ENTRY(data));
     g_print("IP = %s \n", IP);
-    chatClient(IP);
+	//chatInterface();
+	chatClient(IP);
 }
 
 void runClient(){
@@ -176,6 +196,7 @@ void runClient(){
 		if (pid==0) {
 			execl("./", "./Server", NULL);
 		}
+		chatClient("127.0.0.1");
     }
     // logic if client is clicked
     if(data == "client"){
