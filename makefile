@@ -1,13 +1,14 @@
 all:server client launcher
 
 server: server.c
-		gcc -c server.c -o Server
+		gcc  server.c -o Server -lpthread 
 
 client: client.c
-		gcc -c client.c -o Client
+		gcc  client.c -o Client -lpthread
 
 launcher: Launcher.c
 		gcc `pkg-config --cflags gtk+-3.0` -o launcher Launcher.c `pkg-config --libs gtk+-3.0`
+		
 dependency:
 	sudo apt install libgtk-3-dev
 
