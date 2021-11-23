@@ -1,4 +1,3 @@
-include <gtk/gtk.h>
 #define WINDOW_WIDTH 700
 #define WINDOW_HEIGHT 500
 
@@ -14,19 +13,12 @@ include <gtk/gtk.h>
 #define MAXPORT 80
 #define PORT 8080
 #define SA struct sockaddr
+#define defualtIP "127.0.0.1"
 int sockfdGlobe;
-char buffRead[MAXPORT];
+char buffRead[MAXPORT] = {'a','b','c'};
 int is_Alive = 1;
 pthread_mutex_t stdout_lock;
 int readCheck = 0;
-
-GtkWidget *buttonServer,*buttonClient; //buttons
-GtkWidget *box; //fields
-GtkWidget *instructions; //labels
-GtkWidget *window; //Application window
-GtkWidget *inputField; //input field for user
-
-
 
 /*
  * client.c
@@ -59,6 +51,7 @@ void *write2(void *_args){
 	for(;;){
 		bzero(buffRead, sizeof(buffRead)); 
 		fprintf(stdout, "Enter a string: ");
+
 		n = 0;
 		bzero(buffRead, MAXPORT);
 		//pthread_mutex_lock(&stdout_lock);
@@ -80,9 +73,9 @@ void *write2(void *_args){
 			break;
 		}
 	}
-	
 	pthread_exit(NULL);
 }
+
 void func(int sockfd)
 {
 	if (pthread_mutex_init(&stdout_lock, NULL) != 0) {
@@ -91,16 +84,19 @@ void func(int sockfd)
 	pthread_t thread_id1;
 	pthread_t thread_id2;
 	sockfdGlobe = sockfd;
+	sleep(10);
 	pthread_create(&thread_id1, NULL, read2, NULL);
 	pthread_create(&thread_id2, NULL, write2, NULL);
 	pthread_join(thread_id1, NULL);
 	pthread_join(thread_id2, NULL);
+
 }
 
 int chatClient(char IP[])
 {
 	int sockfd, connfd;
 	struct sockaddr_in servaddr, cli;
+
 
 	// socket create and varification
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -128,126 +124,28 @@ int chatClient(char IP[])
 
 	// function for chat
 	func(sockfd);
-
 	// close the socket
 	close(sockfd);
 }
 
-
-
-
-//gui interface code
-
-//Gui for chat perhaps this can be moved into the main client
-void chatInterface(){
-
-	gtk_container_remove(GTK_CONTAINER(window), box);//clear the page
-
-	box = gtk_fixed_new();
-	gtk_container_add(GTK_CONTAINER(window), box);//add box to window
-	inputField = gtk_entry_new();//Setup input field
-	gtk_entry_set_placeholder_text(GTK_ENTRY(inputField), "Type message here"); //input field text added
-	gtk_fixed_put(GTK_FIXED(box), inputField, (WINDOW_WIDTH / 2) - 80, WINDOW_HEIGHT / 2); //place the field
-
-	gtk_widget_show_all(window);// set all items to the stage.
-
-
-
-
-
-}
-
-void entered(GtkEntry *widget, gpointer data){
-    
-    g_print("you entered: %s\n", gtk_entry_get_text(GTK_ENTRY(data)));
-	char* temp = gtk_entry_get_text(GTK_ENTRY(data));
-	char IP[20];
-	strcpy(IP, temp);
-    //gchar* IP  = gtk_entry_get_text(GTK_ENTRY(data));
-    g_print("IP = %s \n", IP);
-	//chatInterface();
-	chatClient(IP);
-}
-
-void runClient(){
-    box = gtk_fixed_new();
-    gtk_container_add(GTK_CONTAINER(window), box);//add box to window
-
-    instructions = gtk_label_new("Please enter the IP of the chat room you wish to join then press ENTER.");//setting the label
-    gtk_fixed_put(GTK_FIXED(box), instructions, (WINDOW_WIDTH / 2) -  (72 * 3), 50);
-
-    inputField = gtk_entry_new();//Setup input field
-    gtk_entry_set_placeholder_text(GTK_ENTRY(inputField), "x.x.x.x");
-    gtk_fixed_put(GTK_FIXED(box), inputField, (WINDOW_WIDTH / 2) - 80, WINDOW_HEIGHT /2);
-
-    g_signal_connect(inputField, "activate", G_CALLBACK(entered), inputField);
-
-
-    gtk_widget_show_all(window);
-}
-
- static void button_clicked(GtkWidget *widget, char data[]){
-    g_print("The %s button was pressed \n", data);
-
-    // logic if server is clicked
-    if(data == "server"){
-        gtk_container_remove(GTK_CONTAINER(window), box);
-		pid_t pid =fork();
-		if (pid==0) {
-			execl("./", "./Server", NULL);
-		}
-		chatClient("127.0.0.1");
+int main (int argc, char **argv){
+	char hostOrClient[4];
+	printf("Would you like to \"Host\" or \"Join\"?\n"); 
+	scanf("%s", hostOrClient);
+	printf("%s", hostOrClient);
+	// logic if server is clicked
+    if(strcmp(hostOrClient, "Host") || strcmp(hostOrClient, "host")){
+		system("./Server &");	
+		sleep(2);//Need time for the sever to fire up 
+		chatClient(defualtIP);
     }
     // logic if client is clicked
-    if(data == "client"){
-        gtk_container_remove(GTK_CONTAINER(window), box);
-        runClient();
+    if(strcmp(hostOrClient, "Join") || strcmp(hostOrClient, "join")){
+		char ip[16];
+		printf("\nPlease enter the IP of the chat room you wish to join then press ENTER.\n");
+		scanf("%s",ip);
+		chatClient(ip);
     }
-}
-
-void inizilize (GtkWidget *window){
-
-    instructions = gtk_label_new("What would you like to do?");//setting the label
-
-    //setup box to contain items
-    box = gtk_fixed_new();
-    gtk_container_add(GTK_CONTAINER(window), box);//add box to window
-
-    //Add buttons and label to screen
-    buttonServer = gtk_button_new_with_label("Host Chat");
-    gtk_widget_set_size_request(GTK_WIDGET(buttonServer), 200, 100);
-    buttonClient = gtk_button_new_with_label("Join Chat");
-    gtk_widget_set_size_request(GTK_WIDGET(buttonClient), 200, 100);
-    gtk_fixed_put(GTK_FIXED(box), buttonServer, 100, 250);
-    gtk_fixed_put(GTK_FIXED(box), buttonClient, 400, 250);
-    gtk_fixed_put(GTK_FIXED(box), instructions, (WINDOW_WIDTH / 2) - 80, 50);
-
-    g_signal_connect(buttonServer, "clicked", G_CALLBACK(button_clicked), "server");
-    g_signal_connect(buttonClient, "clicked", G_CALLBACK(button_clicked), "client");
-    
-}
-
-int main (int argc, char **argv){
-
-    //So this is used to call visual and color maping and initalizes the gtx library.
-    gtk_init (&argc, &argv);
-
-    //Displays the window
-    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);// Main window
-    
-    gtk_window_set_title(GTK_WINDOW(window), "The Awsome Chat Room!");// set title of application
-    gtk_window_set_default_size(GTK_WINDOW(window), WINDOW_WIDTH, WINDOW_HEIGHT);// set size in pixles
-    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);//center window
-    gtk_window_set_resizable(GTK_WINDOW(window), FALSE);// prevent user from resizing window
-
-    inizilize(window);// pass the window to inizlize
-
-    gtk_widget_show_all(window);
-
-    //close window corectly ending program.
-    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-
-    gtk_main ();// loops the function
-
+	printf("we ended");
     return 0;
 }
