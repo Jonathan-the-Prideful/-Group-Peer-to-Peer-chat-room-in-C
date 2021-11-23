@@ -27,11 +27,9 @@ int is_Alive = 1;
 void *read2(void *_args){
 	char buff[MAXPORT];
 	for(;;){
-		readCheck = 0;
 		bzero(buff, MAXPORT);
 		read(sockfdGlobe, buff, sizeof(buff));
-		readCheck = 1;
-		fprintf(stdout, "\nFrom other user: %s \nEnter a string:", buff);
+		fprintf(stdout, "\nFrom other user: %sEnter a string:", buff);
 			// if msg contains "Exit" then server exit and chat ended.	
 		if (is_Alive == 0) {
 			printf("Read thread exit\n");
@@ -47,7 +45,6 @@ void *write2(void *_args){
 	for(;;){
 		bzero(buffRead, sizeof(buffRead)); 
 		fprintf(stdout, "Enter a string: ");
-
 		n = 0;
 		bzero(buffRead, MAXPORT);
 		while ((buffRead[n++] = getchar()) != '\n'){
