@@ -78,9 +78,7 @@ void *write2(void *_args){
 
 void func(int sockfd)
 {
-	if (pthread_mutex_init(&stdout_lock, NULL) != 0) {
-		printf("\n mutex init has failed\n");
-	}
+	setvbuf(stdout, NULL, _IONBF, 0);
 	pthread_t thread_id1;
 	pthread_t thread_id2;
 	sockfdGlobe = sockfd;
