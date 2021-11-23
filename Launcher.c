@@ -17,14 +17,12 @@
 int sockfdGlobe;
 char buffRead[MAXPORT] = {'a','b','c'};
 int is_Alive = 1;
-pthread_mutex_t stdout_lock;
-int readCheck = 0;
 
 /*
  * client.c
  *
  *  Created on: Nov 11, 2020
- *      Author: sarwars1
+ *      Author: ALeonard, JThomas
  */
 void *read2(void *_args){
 	char buff[MAXPORT];
@@ -33,10 +31,8 @@ void *read2(void *_args){
 		bzero(buff, MAXPORT);
 		read(sockfdGlobe, buff, sizeof(buff));
 		readCheck = 1;
-		fprintf(stdout, "\nFrom other user: %s", buff);
+		fprintf(stdout, "\nFrom other user: %s \nEnter a string:", buff);
 			// if msg contains "Exit" then server exit and chat ended.	
-		//pthread_mutex_unlock(&stdout_lock);
-		readCheck = 1;
 		if (is_Alive == 0) {
 			printf("Read thread exit\n");
 			break;
@@ -54,14 +50,8 @@ void *write2(void *_args){
 
 		n = 0;
 		bzero(buffRead, MAXPORT);
-		//pthread_mutex_lock(&stdout_lock);
 		while ((buffRead[n++] = getchar()) != '\n'){
-			if(readCheck == 1){
-				fprintf(stdout, "Enter a string: %s", buffRead);
-			}
 		};
-		//sleep(2);
-		//pthread_mutex_unlock(&stdout_lock);
 		write(sockfdGlobe, buffRead, sizeof(buffRead));
 		if ((strncmp(buffRead, "exit", 4)) == 0) {
 			printf("Client Exit...\n");
