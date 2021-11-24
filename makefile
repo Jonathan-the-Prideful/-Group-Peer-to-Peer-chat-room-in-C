@@ -9,8 +9,6 @@ client: client.c
 launcher: Launcher.c
 		gcc Launcher.c -o launcher -lpthread
 		
-dependency:
-	sudo apt install libgtk-3-dev
 
 clean:
 	rm -f Server Client launcher
