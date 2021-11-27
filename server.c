@@ -136,7 +136,6 @@ int main()
 
 	// After chatting close the socket
 	close(sockfd);
-	printf("\n*** Number of times action timer ran: %d***", actionTimerCounter);
 	
 	
 }
