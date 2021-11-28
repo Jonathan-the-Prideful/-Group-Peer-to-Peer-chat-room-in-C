@@ -1,4 +1,4 @@
-all:server client launcher
+all:server launcher
 
 server: server.c
 		gcc  server.c -o Server -lpthread 
@@ -6,6 +6,5 @@ server: server.c
 launcher: Launcher.c
 		gcc Launcher.c -o launcher -lpthread
 		
-
 clean:
 	rm -f Server Client launcher

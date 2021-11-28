@@ -91,7 +91,7 @@ int main()
 		exit(0);
 	}	
 	else
-		printf("Socket successfully created..\n");
+		//printf("Socket successfully created..\n");
 		
 	
 	bzero(&servaddr, sizeof(servaddr));
@@ -108,7 +108,7 @@ int main()
 		exit(0);
 	}
 	else
-		printf("Socket successfully binded..\n");
+		//printf("Socket successfully binded..\n");
 	
 	while(userCount < 2){
 	// Now server is ready to listen and verification
@@ -117,7 +117,7 @@ int main()
 		exit(0);
 	}
 	else
-		printf("Server listening..\n");
+		//printf("Server listening..\n");
 	len = sizeof(cli);
 
 	// Accept the data packet from client and verification
@@ -127,7 +127,7 @@ int main()
 		exit(0);
 	}
 	else
-		printf("server acccept the client...\n");
+		//printf("server acccept the client...\n");
 		userCount ++;
 	}
 	
@@ -136,7 +136,7 @@ int main()
 
 	// After chatting close the socket
 	close(sockfd);
-	sleep(10);
+	sleep(2);
 	
 	
 }
