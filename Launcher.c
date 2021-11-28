@@ -69,7 +69,7 @@ void func(int sockfd)
 	pthread_t thread_id1;
 	pthread_t thread_id2;
 	sockfdGlobe = sockfd;
-	sleep(10);
+	sleep(2);
 	pthread_create(&thread_id1, NULL, read2, NULL);
 	pthread_create(&thread_id2, NULL, write2, NULL);
 	pthread_join(thread_id1, NULL);
