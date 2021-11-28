@@ -1,6 +1,3 @@
-#define WINDOW_WIDTH 700
-#define WINDOW_HEIGHT 500
-
 #include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
