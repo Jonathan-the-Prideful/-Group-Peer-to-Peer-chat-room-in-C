@@ -136,6 +136,7 @@ int main()
 
 	// After chatting close the socket
 	close(sockfd);
+	sleep(10);
 	
 	
 }
